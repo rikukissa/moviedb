@@ -2,11 +2,11 @@
 
 var express = require('express');
 var MongoClient = require('mongodb').MongoClient;
-
-var app = express(); // Luodaan uusi express-applikaatio
-
+var serveStatic = require('serve-static');
 var bodyParser = require('body-parser');
 
+var app = express(); // Luodaan uusi express-applikaatio
+app.use(serveStatic('client/', {'index': ['index.html']}));
 app.use(bodyParser.json());
 
 // Endpoint kaikkien elokuvien hakemiseen
@@ -31,7 +31,7 @@ app.post('/movies', function(req, res, next) {
       return;
     }
 
-    res.status(201).send(newMovies);
+    res.status(201).send(newMovies[0]);
   });
 
 });
@@ -41,9 +41,11 @@ app.use(function(err, req, res, next) {
 });
 
 MongoClient.connect('mongodb://127.0.0.1:27017/moviedb', function(err, db) {
+
   if(err) {
     throw err;
   }
+
   app.movies = db.collection('movies');
 
   // Asetetaan applikaatio kuuntelemana porttia 9000 ja
